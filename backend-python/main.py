@@ -52,7 +52,7 @@ async def add_entry(entry: AcronymEntry):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.put("/admin/update/")
+@app.put("/admin/update")
 async def update_entry(entry: AcronymEntry):
     try:
         update(entry.acronym, entry.definition, entry.description)

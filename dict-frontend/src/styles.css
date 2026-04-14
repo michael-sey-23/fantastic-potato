@@ -37,7 +37,7 @@
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui;
   background-color: var(--bg-base);
   color: var(--text-main);
   line-height: 1.5;
@@ -79,12 +79,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-elevated);
+  background: grey;
   border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-glow);
+  background: darkslategrey;
 }
 
 a {

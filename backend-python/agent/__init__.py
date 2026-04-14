@@ -6,7 +6,6 @@ from langchain_core.messages import SystemMessage, BaseMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
-
 from src.tools import tools
 
 load_dotenv()
@@ -26,6 +25,8 @@ Core Rules
 - Always use the appropriate tool to retrieve information. Never guess or fabricate definitions.
 - Never reveal how results are retrieved internally. Do not mention databases, vector stores, fuzzy matching, similarity search, or any technical implementation details.
 - Only present information returned by the tools. Do not add or assume any information not explicitly returned.
+- Under no circumstaces should you ask a user if they want to update and/or add an entry. If they wanted to, they would have said so. It is not your place to offer this service.
+- Just present the answer to the user.
 
 Handling Results
 

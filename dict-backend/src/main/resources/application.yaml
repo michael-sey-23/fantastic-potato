@@ -21,6 +21,23 @@ spring:
     init:
       mode: always
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:Ov23ct9yiCzrFKFZquwB}
+            client-secret: ${GITHUB_CLIENT_SECRET:e1f787d41d28595a1d9321e762faa348e58cd75d}
+            scope:
+              - user:email
+              - read:user
+
 management:
   endpoints:
     web:
