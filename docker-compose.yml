@@ -1,0 +1,80 @@
+services:
+  # 1. The Database
+  db:
+    image: postgres:15
+    container_name: dict-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dictionary_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. The Python AI Service
+  python-ai:
+    build:
+      context: ./backend-python
+    container_name: dict-python
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend-python/.env
+    volumes:
+      - ./backend-python/assets:/app/assets
+
+  # 3. The Java Backend
+  java-backend:
+    build:
+      context: ./dict-backend
+    container_name: dict-java
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./dict-backend/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - db
+
+  # 4. The Angular Frontend
+  angular-frontend:
+    build:
+      context: ./dict-frontend
+    container_name: dict-angular
+    ports:
+      - "80:80"
+    depends_on:
+      - java-backend
+
+  # 5. Database Management
+  adminer:
+    image: adminer
+    container_name: dict-adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+# 6. MCP server
+  mcp:
+    build:
+      context: ./dict-mcp
+    container_name: dict-mcp
+    environment:
+      JAVA_BASE_URL: http://java-backend:8080
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: password123
+    ports:
+      - "8002:8002"
+    depends_on:
+      java-backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -1,0 +1,46 @@
+<div class="chat-assistant-container">
+  <!-- Top Header -->
+  <header class="assistant-header">
+    <div class="header-content">
+      <h1>Chat Assistant</h1>
+      <p>Ask any question and get instant responses</p>
+    </div>
+  </header>
+
+  <div class="horizontal-divider"></div>
+
+  <!-- Messages Area -->
+  <div class="messages-viewport" #chatScroll>
+    @if (acronymService.chatHistory().length === 0) {
+      <div class="empty-chat-state">
+        <!-- Optional: Center an icon or text here -->
+      </div>
+    }
+
+    @for (msg of acronymService.chatHistory(); track msg.id) {
+      <div class="message-wrapper" [class.user-wrapper]="msg.sender === 'user'" [class.bot-wrapper]="msg.sender === 'bot'">
+        <div class="bubble-container">
+          <div class="bubble" [class.user-bubble]="msg.sender === 'user'" [class.bot-bubble]="msg.sender === 'bot'">
+            {{ msg.text }}
+          </div>
+          <span class="message-time">{{ msg.timestamp || 'Just now' }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Bottom Input Bar -->
+  <div class="input-container">
+    <div class="input-tray">
+      <input 
+        type="text" 
+        placeholder="Type your message..." 
+        #searchInput 
+        (keydown.enter)="performSearch(searchInput.value); searchInput.value = ''"
+      >
+      <button class="action-btn send-circle" (click)="performSearch(searchInput.value); searchInput.value = ''">
+        <span class="send-icon">➤</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<div class="app-layout">
+  @if (showNav) {
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>Dashboard</h2>
+      </div>
+
+      <nav class="nav-links">
+        <a routerLink="/search" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+          <span class="icon">💬</span> Chat
+        </a>
+        <a routerLink="/history" routerLinkActive="active-link">
+          <span class="icon">🕒</span> History
+        </a>
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="active-link">
+            <span class="icon">🛡️</span> Admin
+          </a>
+        }
+      </nav>
+
+      <div class="sidebar-footer">
+        @if (authService.isLoggedIn()) {
+          <button class="logout-btn" (click)="authService.logout()">
+            <span class="icon">🚪</span> Logout
+          </button>
+        }
+      </div>
+    </aside>
+  }
+
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

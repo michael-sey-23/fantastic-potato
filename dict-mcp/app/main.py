@@ -1,0 +1,81 @@
+import os
+import sys
+from typing import Optional
+
+from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
+
+from .http_client import AuthenticatedClient
+from .models import Submission, Query
+from .tools.search import search
+from .tools.submit import submit
+
+load_dotenv()
+
+# Ensure UTF-8 encoding on Windows
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+# Initialize FastMCP server
+mcp = FastMCP("dictionary")
+
+# Initialize authenticated client (will be initialized on first use)
+http_client: Optional[AuthenticatedClient] = None
+
+
+async def get_http_client() -> AuthenticatedClient:
+    """Get or create the HTTP client with authentication."""
+    global http_client
+
+    if http_client is None:
+        base_url = os.getenv("JAVA_BASE_URL", "http://localhost:8080")
+        admin_username = os.getenv("ADMIN_USERNAME", "admin")
+        admin_password = os.getenv("ADMIN_PASSWORD", "password123")
+
+        http_client = AuthenticatedClient(base_url, admin_username, admin_password)
+        await http_client.login()
+
+    return http_client
+
+
+@mcp.tool()
+async def search_tool(query: Query) -> dict:
+    """
+    Search for an acronym definition in the dictionary.
+
+    Args:
+        query: A Query object containing the query to search for
+
+    Returns:
+        Dictionary containing the definition or error message
+    """
+    client = await get_http_client()
+    return await search(client, query)
+
+
+@mcp.tool()
+async def submit_tool(submission: Submission) -> str:
+    """
+    Submit a new acronym to the dictionary.
+
+    Args:
+        submission: A Submission object containing:
+            - acronym: The acronym to add
+            - definition: The definition of the acronym
+            - description: Optional longer description
+
+    Returns:
+        Success or error message
+    """
+    client = await get_http_client()
+    return await submit(client, submission)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    # Pre-initialize client before starting server
+    asyncio.run(get_http_client())
+    mcp.run()

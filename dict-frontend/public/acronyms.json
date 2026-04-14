@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "acronym": "API",
+    "definition": "Application Programming Interface. A set of rules that allows one software application to talk to another.",
+    "category": "Technology",
+    "url": "https://en.wikipedia.org/wiki/API"
+  },
+  {
+    "id": 2,
+    "acronym": "NASA",
+    "definition": "National Aeronautics and Space Administration. The US government agency responsible for the civilian space program.",
+    "category": "Government",
+    "url": "https://www.nasa.gov/"
+  },
+  {
+    "id": 3,
+    "acronym": "HTML",
+    "definition": "HyperText Markup Language. The standard markup language for documents designed to be displayed in a web browser.",
+    "category": "Technology",
+    "url": "https://en.wikipedia.org/wiki/HTML"
+  }
+]

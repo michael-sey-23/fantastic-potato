@@ -1,0 +1,83 @@
+# Environment files
+.env
+**/.env
+
+# Python
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+*.egg
+*.py[oc]
+wheels/
+backend-python/.langgraph_api
+*.egg-info
+
+# Java / Maven
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.log
+
+# Compiled output
+tmp/
+out-tsc/
+bazel-out/
+
+# Node
+/dict-frontend/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.iml
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# ChromaDB
+backend-python/assets/chroma/
+
+# OS
+*.stackdump
+bash.exe.stackdump
+
+# Cache
+__pycache__/
+.pytest_cache/
+dict-frontend/.angular/cache
+.sass-cache/
+
+# Miscellaneous
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/

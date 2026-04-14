@@ -1,0 +1,195 @@
+.history-master-detail {
+  display: flex;
+  height: 100%;
+  background-color: var(--bg-base);
+}
+
+/* Sidebar List Styling */
+.history-sidebar {
+  width: 360px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+}
+
+.sidebar-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  background: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.horizontal-divider {
+  height: 1px;
+  background-color: var(--border-light);
+}
+
+.scrollable-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.history-card {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-card:hover {
+  background-color: #f9fafb;
+}
+
+.active-card {
+  background-color: #000 !important;
+  color: white !important;
+}
+
+.active-card .query-title,
+.active-card .date-text,
+.active-card .calendar-icon,
+.active-card .msg-count {
+  color: #ffffff !important;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-icon {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.date-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.query-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msg-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Detail Pane Styling */
+.history-details-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.details-content {
+  padding: 3rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.detail-header {
+  margin-bottom: 2.5rem;
+}
+
+.detail-date {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.detail-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.conversation-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.msg-bubble {
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  line-height: 1.6;
+  background-color: var(--bg-bubble);
+  color: var(--text-main);
+  max-width: 90%;
+}
+
+/* Empty State Styling */
+.empty-detail-state, .empty-list-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.25;
+}
+
+.empty-detail-state p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
