@@ -35,7 +35,13 @@ async def get_http_client() -> AuthenticatedClient:
         admin_password = os.getenv("ADMIN_PASSWORD", "password123")
 
         http_client = AuthenticatedClient(base_url, admin_username, admin_password)
-        await http_client.login()
+
+        try:
+            await http_client.login()
+            print("Login success")
+        except Exception as e:
+            print(f"Login failed: {str(e)}")
+            raise
 
     return http_client
 
@@ -56,7 +62,7 @@ async def search_tool(query: Query) -> dict:
 
 
 @mcp.tool()
-async def submit_tool(submission: Submission) -> str:
+async def submit_tool(submission: Submission) -> dict:
     """
     Submit a new acronym to the dictionary.
 

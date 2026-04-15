@@ -2,7 +2,7 @@ from ..http_client import AuthenticatedClient
 from ..models import Submission
 
 
-async def submit(http_client: AuthenticatedClient, submission: Submission) -> str:
+async def submit(http_client: AuthenticatedClient, submission: Submission) -> dict:
     """
     Submit a new acronym to the dictionary.
 
@@ -19,7 +19,28 @@ async def submit(http_client: AuthenticatedClient, submission: Submission) -> st
         Success message if the acronym was added, or error message if it failed
     """
     try:
-        await http_client.post("api/acronyms/add", json_data={"acronym": submission.acronym, "definition": submission.definition, "description": submission.description})
-        return f"'{submission.acronym}' added"
+        await http_client.post(
+            "api/acronyms/add",
+            json_data={
+                "acronym": submission.acronym,
+                "definition": submission.definition,
+                "description": submission.description
+            }
+        )
+        return {
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"'{submission.acronym}' added"
+                }
+            ]
+        }
     except Exception as e:
-        return f"Failed to add '{submission.acronym}' : {str(e)}"
+        return {
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Failed to add '{submission.acronym}' : {str(e)}"
+                }
+            ]
+        }

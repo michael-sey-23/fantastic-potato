@@ -13,7 +13,7 @@ class AuthenticatedClient:
         Initialize the authenticated client.
 
         Args:
-            base_url: The base URL of the Java backend (e.g., http://localhost:8080)
+            base_url: The base URL of the Java backend (e.g., http://dict-backend:8080)
             username: Username for authentication
             password: Password for authentication
         """
