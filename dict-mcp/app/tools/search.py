@@ -19,8 +19,8 @@ async def search(http_client: AuthenticatedClient, query: Query) -> dict:
     """
     try:
         response = await http_client.get(
-            "/api/acronyms/search",
-            params={"query": query.query}
+            "api/acronyms/search",
+            query=query.query
         )
 
         if response and len(response) > 0:

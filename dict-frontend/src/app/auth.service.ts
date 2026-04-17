@@ -1,6 +1,7 @@
 import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { API_URL} from './app.env';
 
 @Injectable({
   providedIn: 'root',
@@ -8,11 +9,11 @@ import { Router } from '@angular/router';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly baseUrl = 'http://localhost:8080/api/auth';
+  private readonly baseUrl = `${API_URL}auth`;
 
   // Initialize signals based on storage
   public readonly isLoggedIn = signal(!!localStorage.getItem('auth_token'));
-  
+
   public readonly isAdmin = computed(() => {
     return this.isLoggedIn() && this.getRole() === 'ROLE_ADMIN';
   });

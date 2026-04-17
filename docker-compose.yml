@@ -75,6 +75,7 @@ services:
     depends_on:
       java-backend:
         condition: service_healthy
+    
 
 volumes:
   postgres_data:

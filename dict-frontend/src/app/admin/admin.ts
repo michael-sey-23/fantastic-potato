@@ -5,6 +5,7 @@ import {FormsModule, NgForm} from '@angular/forms';
 import {Acronym} from '../models';
 import {Observable} from 'rxjs';
 import {shareReplay} from 'rxjs/operators';
+import {API_URL} from '../app.env';
 
 @Component({
   selector: 'app-admin',
@@ -15,7 +16,7 @@ import {shareReplay} from 'rxjs/operators';
 })
 export class Admin implements OnInit {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/acronyms';
+  private apiUrl = `${API_URL}acronyms`;
 
   public suggestions: any[] = [];
   public selectedSuggestionIndex: number | null = null;

@@ -76,7 +76,7 @@ async def get_all_acroyms():
         with create_connection() as connection:
             cursor = connection.cursor()
             query = """
-                    SELECT acronym, definition
+                    SELECT acronym, definition, description
                     from acronyms
                     """
             cursor.execute(query)

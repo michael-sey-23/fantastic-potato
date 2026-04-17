@@ -30,9 +30,9 @@ async def get_http_client() -> AuthenticatedClient:
     global http_client
 
     if http_client is None:
-        base_url = os.getenv("JAVA_BASE_URL", "http://localhost:8080")
-        admin_username = os.getenv("ADMIN_USERNAME", "admin")
-        admin_password = os.getenv("ADMIN_PASSWORD", "password123")
+        base_url = os.getenv("JAVA_BASE_URL")
+        admin_username = os.getenv("ADMIN_USERNAME")
+        admin_password = os.getenv("ADMIN_PASSWORD")
 
         http_client = AuthenticatedClient(base_url, admin_username, admin_password)
 

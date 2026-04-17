@@ -48,7 +48,7 @@ public class AcronymController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> addAcronym(@RequestBody Map<String, String> data) {
         try {
             Map<String, Object> result = chatService.addAcronym(data).block();
@@ -59,7 +59,7 @@ public class AcronymController {
     }
 
     @GetMapping("/suggestions")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, String>>> getSuggestions() {
         try {
             List<Map<String, String>> result = chatService.getSuggestions().block();
@@ -70,7 +70,7 @@ public class AcronymController {
     }
 
     @DeleteMapping("/suggestions/{index}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteSuggestion(@PathVariable int index) {
         try {
             Map<String, Object> result = chatService.deleteSuggestion(index).block();
@@ -91,7 +91,7 @@ public class AcronymController {
     }
 
     @PutMapping("/update")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateAcronym(@RequestBody Map<String, String> data) {
         try {
             Map<String, Object> result = chatService.updateAcronym(data).block();
@@ -102,7 +102,7 @@ public class AcronymController {
     }
 
     @DeleteMapping("/delete/{acronym}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteAcronym(@PathVariable String acronym) {
         try {
             Map<String, Object> result = chatService.deleteAcronym(acronym).block();
