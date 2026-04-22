@@ -283,3 +283,25 @@
   border-radius: var(--radius-md);
   border: 1px dashed var(--border);
 }
+
+.btn-approve, .btn-reject {
+  width: 100%;
+  padding: 1.1rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-approve:hover{
+  background-color: #28a745;
+}
+
+.btn-reject:hover{
+  background-color: #cb2431;
+}

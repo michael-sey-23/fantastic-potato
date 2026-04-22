@@ -18,7 +18,7 @@ export class History implements OnInit {
   public searchQuery = signal<string>('');
   public selectedRecord = signal<any | null>(null);
 
-  // Filtered list based on search
+  // Filtering is derived state, so it updates automatically as records or query change.
   public filteredRecords = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const allRecords = this.records();
@@ -47,7 +47,7 @@ export class History implements OnInit {
   refreshHistory(): void {
     this.http.get<any[]>(`${API_URL}acronyms/history`).subscribe({
       next: (data) => {
-        // Optional: Pre-process data if needed
+        // The backend already sorts history newest-first for the current user.
         this.records.set(data);
       },
       error: (err) => {

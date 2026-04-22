@@ -24,8 +24,7 @@ export class OAuth2Redirect implements OnInit {
   ngOnInit() {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
-      localStorage.setItem('auth_token', token);
-      this.authService.isLoggedIn.set(true);
+      this.authService.handleLoginSuccess(token);
       this.router.navigate(['/search']);
     } else {
       this.router.navigate(['/login']);

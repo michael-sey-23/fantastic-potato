@@ -1,11 +1,21 @@
+"""
+Command line interface for admin actions.
+These are now implemented in the frontend.
+"""
+
 import json
 import os
 
 from dotenv import load_dotenv
 
-from utils import add_new_entry, update, delete
+from src.utils import add_new_entry, update, delete
 
 load_dotenv()
+
+# Resolve paths relative to the project root (backend-python/),
+# regardless of which directory this script is run from.
+_project_root = os.path.dirname(os.path.abspath(__file__))
+_review_list_path = os.path.join(_project_root, os.getenv("REVIEW_LIST", "assets/review.json"))
 
 
 def confirm_entry(entry="", by_admin=True, user_entry=""):
@@ -70,10 +80,10 @@ if __name__ == "__main__":
     # Review entries to be added
     elif choice == "4":
 
-        if not os.path.exists(os.getenv("REVIEW_LIST")):
+        if not os.path.exists(_review_list_path):
             print("No entries to review yet.")
         else:
-            review_file = os.getenv("REVIEW_LIST")
+            review_file = _review_list_path
             rejected_entries = []
             with open(review_file, "r") as file:
                 data = json.load(file)
@@ -81,8 +91,9 @@ if __name__ == "__main__":
             for entry in data:
                 # Extract necessary data from the json file
                 acronym = confirm_entry(by_admin=False, user_entry=entry["acronym"])
-                # If new_acronym is true, that means they are adding a new acronym. Otherwise it is an updated term
-                new_acronym = entry["metadata"]["new_acronym"]
+                # Determine whether this suggestion is a new acronym or an update.
+                # Suggestions are stored as objects: {"acronym": "XYZ", "is_new_entry": true/false}
+                new_acronym = entry["is_new_entry"]
 
                 # Check if admin wants to accept the user's entry / suggested update
                 accept = ""

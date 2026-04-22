@@ -61,7 +61,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Username already taken!"));
         }
 
-        // 2. Create the new User (Default to ROLE_USER)
+        // 2. New registrations are regular users; admin accounts are bootstrapped separately.
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(passwordEncoder.encode(password));

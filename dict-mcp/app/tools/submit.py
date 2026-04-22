@@ -22,25 +22,12 @@ async def submit(http_client: AuthenticatedClient, submission: Submission) -> di
         await http_client.post(
             "api/acronyms/add",
             json_data={
+                # The MCP layer forwards the same payload shape the admin UI uses.
                 "acronym": submission.acronym,
                 "definition": submission.definition,
                 "description": submission.description
             }
         )
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": f"'{submission.acronym}' added"
-                }
-            ]
-        }
+        return f"'{submission.acronym}' added"
     except Exception as e:
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": f"Failed to add '{submission.acronym}' : {str(e)}"
-                }
-            ]
-        }
+        return f"Failed to add '{submission.acronym}' : {str(e)}"

@@ -20,6 +20,7 @@ public class DataInitializer implements CommandLineRunner{
 
     @Override
     public void run(String... args) {
+        // Seed a default admin account for local development the first time the app starts.
         if (userRepository.findByUsername("admin").isEmpty()) {
             User admin = new User();
             admin.setUsername("admin");

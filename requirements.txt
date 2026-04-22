@@ -106,3 +106,5 @@ uvicorn==0.44.0
     #   chromadb
     #   langgraph-api
     #   mcp
+
+python-dotenv

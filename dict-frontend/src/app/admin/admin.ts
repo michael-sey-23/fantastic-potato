@@ -32,6 +32,7 @@ export class Admin implements OnInit {
   ngOnInit() {
     this.fetchAcronyms();
     this.fetchSuggestions();
+    // Cache the latest acronym list in a signal so the template can consume a plain array.
     this.acronyms$.subscribe({
       next: (res) => this.acronyms.set(res || []),
       error: (err) => console.error("Could not fetch acronyms", err)
@@ -39,6 +40,7 @@ export class Admin implements OnInit {
   }
 
   fetchAcronyms(): void {
+    // shareReplay avoids duplicate network calls when the page binds to the same request more than once.
     this.acronyms$ = this.http.get<any[]>(`${this.apiUrl}/all-acronyms`).pipe(
       shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -85,6 +87,7 @@ export class Admin implements OnInit {
           form.reset();
 
           if (this.selectedSuggestionIndex !== null) {
+            // Once a suggestion becomes a real entry, remove it from the review queue.
             this.onRejectSuggestion(this.selectedSuggestionIndex);
             this.selectedSuggestionIndex = null;
           }
@@ -103,6 +106,7 @@ export class Admin implements OnInit {
   }
 
   onClickAcronymCard(acronym: any): void {
+    // The edit popup binds directly to the selected acronym object.
     this.selectedAcronym = acronym;
     this.visiblePopup.set(true);
   }

@@ -54,9 +54,9 @@
             <div class="suggestion-item">
               <div class="suggestion-info">
                 <strong>{{ suggestion.acronym }}</strong>
-                <span class="badge" [class.badge-new]="suggestion.metadata?.new_acronym"
-                      [class.badge-update]="!suggestion.metadata?.new_acronym">
-                  {{ suggestion.metadata?.new_acronym ? 'New Term' : 'Update Request' }}
+                <span class="badge" [class.badge-new]="suggestion.is_new_entry"
+                      [class.badge-update]="!suggestion.is_new_entry">
+                  {{ suggestion.is_new_entry ? 'New Term' : 'Update Request' }}
                 </span>
               </div>
               <div class="suggestion-actions">

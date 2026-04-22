@@ -177,7 +177,7 @@
 }
 
 .header-titles h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-display), system-ui;
   font-size: 1.8rem;
   background: black;
   -webkit-background-clip: text;
@@ -240,7 +240,7 @@
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition: all 0.2s;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui;
 }
 
 .message-row {
@@ -292,7 +292,7 @@
 }
 
 .bot-bubble {
-  background: linear-gradient(135deg, var(--bg-panel), #232730);
+  background: #c0ffea;
   border: 1px solid var(--border);
   border-bottom-left-radius: 4px;
 }
@@ -342,7 +342,7 @@
   padding: 12px 16px;
   color: var(--text-main);
   font-size: 1rem;
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui;
 }
 
 .input-box input::placeholder {
@@ -381,3 +381,228 @@
   font-size: 0.75rem;
   margin-top: 16px;
 }
+
+.suggestions-list {
+  width: 100%;
+  max-width: 980px;
+  margin: 1rem auto 2rem;
+  padding: 0.5rem 1rem 1rem;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+.scrollable-list {
+  width: 100%;
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-header h1,
+.card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.collapse-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collapse-btn:hover {
+  background: var(--bg-elevated);
+}
+
+/* Collapsible container: when .collapsed is present, hide content smoothly */
+.collapsible {
+  max-height: 1200px; /* large enough for full content */
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(.2,.9,.2,1), opacity 0.25s ease;
+  opacity: 1;
+}
+
+.collapsible.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Backwards-compatible rules for the existing HTML structure which uses
+   a checkbox + label immediately before the section (class 'collapsible-content').
+   The label toggles the checkbox; when checked, target the following sibling section. */
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.35s cubic-bezier(.2,.9,.2,1), opacity 0.25s ease;
+}
+
+/* When the hidden checkbox is checked, the label + the section follow it; show the section */
+.toggle-input:checked + .toggle-label + .collapsible-content {
+  max-height: 1200px;
+  opacity: 1;
+}
+
+/* Toggle checkbox (visually hidden but accessible) and label as icon button */
+.toggle-input {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.toggle-label {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  /* hide textual label but keep element for accessibility */
+  color: transparent;
+  font-size: 0;
+}
+
+.toggle-label:hover {
+  background: var(--bg-panel);
+}
+
+.toggle-label::before {
+  content: '▸';
+  color: var(--text-main);
+  font-size: 1.15rem;
+  transform: rotate(0deg);
+  transition: transform 0.18s ease, color 0.15s ease;
+}
+
+/* When checked (expanded), rotate arrow to point down */
+.toggle-input:checked + .toggle-label::before {
+  transform: rotate(90deg);
+}
+
+/* Slight visual feedback when expanded */
+.toggle-input:checked + .toggle-label {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.acronym-item {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.acronym-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.acronym-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.acronym-info strong {
+  font-size: 1rem;
+  display: block;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.acronym-meta {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.meta-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* Ensure the list fits on small screens */
+@media (max-width: 720px) {
+  .suggestions-list { padding: 0 12px; }
+  .acronym-item { padding: 10px 12px; }
+  .card-header { gap: 8px; }
+  .collapse-btn { padding: 6px 8px; }
+  .acronym-info strong { font-size: 0.95rem; }
+}
+
+/* Typing Indicator Animation */
+.thinking-bubble {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  width: fit-content;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background-color: var(--text-muted);
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+

@@ -12,6 +12,8 @@ export class ChatService {
   private router = inject(Router);
 
   public readonly chatHistory = signal<ChatMessage[]>([]);
+  public readonly isThinking = signal<boolean>(false);
+
   private messageIdCounter = 0;
 
   public sendQuestionToBot(question: string): void {
@@ -28,7 +30,10 @@ export class ChatService {
     };
 
     this.chatHistory.update(history => [...history, userMessage]);
+    this.isThinking.set(true);
 
+
+    // The Angular app talks to the Java API, which then delegates AI lookup to the Python service.
     this.http.get<any>(`${API_URL}acronyms/search?query=${question}`).subscribe({
       next: (data) => {
         const botMessage: ChatMessage = {
@@ -41,9 +46,12 @@ export class ChatService {
         };
 
         this.chatHistory.update(history => [...history, botMessage]);
+        this.isThinking.set(false);
       },
+
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
+          // Authentication problems are handled centrally by returning the user to login.
           localStorage.removeItem('auth_token');
           this.router.navigate(['/login']);
         } else {
@@ -56,7 +64,9 @@ export class ChatService {
           };
           this.chatHistory.update(history => [...history, errorMsg]);
         }
+        this.isThinking.set(false);
       }
+
     });
   }
 }

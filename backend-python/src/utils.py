@@ -9,9 +9,23 @@ from langchain_openai import OpenAIEmbeddings
 
 load_dotenv()
 
-acronym_json_path = os.getenv("ACRONYM_JSON_PATH")
-persist_directory = "assets/chroma"
-sql_db_path = os.getenv("ACRONYM_DB_PATH")
+# Resolve project root (backend-python/) and normalize environment paths (strip surrounding quotes)
+_src_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(_src_dir)
+
+def _get_env_path(var_name: str, default: str):
+    val = os.getenv(var_name, default)
+    if val is None:
+        return default
+    # Strip surrounding quotes if present and normalize relative paths
+    val = val.strip().strip('"').strip("'")
+    if not os.path.isabs(val):
+        return os.path.join(_project_root, val)
+    return val
+
+acronym_json_path = _get_env_path("ACRONYM_JSON_PATH", os.path.join(_project_root, "assets", "words.json"))
+persist_directory = os.path.join(_project_root, "assets", "chroma")
+sql_db_path = _get_env_path("ACRONYM_DB_PATH", os.path.join(_project_root, "assets", "acronyms.db"))
 
 
 def get_embeddings():
@@ -29,7 +43,14 @@ def get_vector_store():
 def create_connection(db_name=sql_db_path):
     """
     Creates and returns a SQLite database connection.
+    Raises a ValueError if the database path is not configured.
     """
+    if not db_name:
+        raise ValueError("ACRONYM_DB_PATH is not set. Please set ACRONYM_DB_PATH in the environment or .env")
+    # Ensure parent directory exists for sqlite file
+    db_dir = os.path.dirname(db_name)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir, exist_ok=True)
     return sqlite3.connect(db_name)
 
 
@@ -70,11 +91,7 @@ def sql_to_document():
         cursor.execute("SELECT acronym, definition, description FROM acronyms")
         for row in cursor:
             docs.append(Document(
-                page_content=row[2],
-                metadata={
-                    "acronym": row[0],
-                    "definition": row[1]
-                }
+                page_content=f"{row[0]}: {row[1]}. {row[2]}"
             ))
             ids.append(row[0])
     return docs, ids
@@ -122,11 +139,7 @@ def add_new_entry(new_acronym: str, new_definition: str, new_description: str):
         connection.commit()
 
     doc = Document(
-        page_content=new_description,
-        metadata={
-            "acronym": new_acronym,
-            "definition": new_definition
-        }
+        page_content=f"{new_acronym}: {new_definition}. {new_description}"
     )
 
     vectorstore = get_vector_store()
@@ -157,11 +170,7 @@ def update(acronym, new_definition, new_description):
         connection.commit()
 
         doc = Document(
-            page_content=new_description,
-            metadata={
-                "acronym": acronym,
-                "definition": new_definition
-            }
+            page_content=f"{acronym}: {new_definition}. {new_description}"
         )
         vectorstore = get_vector_store()
         vectorstore.add_documents(documents=[doc], ids=[acronym])

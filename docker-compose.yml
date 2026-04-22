@@ -34,7 +34,7 @@ services:
     env_file:
       - ./dict-backend/.env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -72,6 +72,7 @@ services:
       ADMIN_PASSWORD: password123
     ports:
       - "8002:8002"
+    command: sleep infinity
     depends_on:
       java-backend:
         condition: service_healthy

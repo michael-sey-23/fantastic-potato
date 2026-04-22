@@ -24,33 +24,11 @@ async def search(http_client: AuthenticatedClient, query: Query) -> dict:
         )
 
         if response and len(response) > 0:
+            # The Java API returns a list payload, so MCP unwraps the first match.
             definition = response[0]["definition"]
-
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"{query.query} = {definition}"
-                    }
-                ]
-            }
-
+            return f"{query.query} = {definition}"
         else:
-            return {
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"No definition found for '{query.query}'"
-                    }
-                ]
-            }
+            return f"No definition found for '{query.query}'"
 
     except Exception as e:
-        return {
-            "content": [
-                {
-                    "type": "text",
-                    "text": f"Failed to look up '{query.query}': {str(e)}"
-                }
-            ]
-        }
+        return f"Failed to look up '{query.query}': {str(e)}"

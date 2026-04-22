@@ -12,11 +12,13 @@ public class ChatService {
     private final WebClient webClient;
 
     public ChatService(WebClient.Builder webClientBuilder, @org.springframework.beans.factory.annotation.Value("${PYTHON_SERVICE_URL:http://localhost:8000}") String pythonServiceUrl) {
+        // The Python AI service can be swapped between local and containerized hosts via config.
         String baseUrl = (pythonServiceUrl != null) ? pythonServiceUrl : "http://localhost:8000";
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
     }
 
     public Mono<Map<String, Object>> getAcronymResponse(String query) {
+        // The Java layer stays thin here: it forwards the prompt and unwraps the Python response.
         return this.webClient.post()
                 .uri("/chat")
                 .bodyValue(java.util.Objects.requireNonNull(java.util.Map.of("query", query)))
@@ -35,19 +37,19 @@ public class ChatService {
                 });
     }
 
-    public Mono<java.util.List<Map<String, String>>> getSuggestions() {
+    public Mono<java.util.List<Map<String, Object>>> getSuggestions() {
         return this.webClient.get()
                 .uri("/admin/suggestions")
                 .retrieve()
-                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<java.util.List<Map<String, String>>>() {
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<java.util.List<Map<String, Object>>>() {
                 });
     }
 
-    public Mono<java.util.List<Map<String, String>>> getAllAcronyms() {
+    public Mono<java.util.List<Map<String, Object>>> getAllAcronyms() {
         return this.webClient.get()
                 .uri("/admin/all-acronyms")
                 .retrieve()
-                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<java.util.List<Map<String, String>>>() {
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<java.util.List<Map<String, Object>>>() {
                 });
     }
 

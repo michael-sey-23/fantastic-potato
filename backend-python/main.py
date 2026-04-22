@@ -1,3 +1,7 @@
+"""
+Exposes an API for the Java Backend to connect to.
+"""
+
 import json
 import os
 
@@ -13,14 +17,21 @@ from src.utils import add_new_entry, update, delete, create_connection
 
 load_dotenv()
 
+# Resolve paths relative to the project root (backend-python/),
+# regardless of which directory this script is run from.
+_project_root = os.path.dirname(os.path.abspath(__file__))
+_review_list_path = os.path.join(_project_root, os.getenv("REVIEW_LIST", "assets/review.json"))
+
 app = FastAPI(title="Dictionary AI Service")
 
 
 class ChatQuery(BaseModel):
+    # The Java backend sends plain user text in this shape when the chat endpoint is called.
     query: str
 
 
 class AcronymEntry(BaseModel):
+    # Admin actions use the same payload shape for create and update operations.
     acronym: str
     definition: str
     description: str
@@ -29,9 +40,10 @@ class AcronymEntry(BaseModel):
 @app.post("/chat")
 async def chat(query: ChatQuery):
     try:
-        # Invoke the LangGraph agent
+        # The agent expects a message history, even for a single turn request.
         result = agent.invoke({"messages": [("user", query.query)]})
-        # The result typically contains the message history, we want the last one
+        # LangGraph returns the whole conversation state, so the latest assistant
+        # message is the value the Java service needs to forward to the UI.
         if "messages" in result and len(result["messages"]) > 0:
             return {"response": result["messages"][-1].content}
         return {"response": "I'm not sure about that one."}
@@ -71,7 +83,7 @@ async def delete_entry(acronym: str):
 
 
 @app.get("/admin/all-acronyms")
-async def get_all_acroyms():
+async def get_all_acronyms():
     try:
         with create_connection() as connection:
             cursor = connection.cursor()
@@ -83,6 +95,7 @@ async def get_all_acroyms():
 
             columns = [desc[0] for desc in cursor.description]
             all_acronyms = cursor.fetchall()
+            # Convert each SQLite row into a JSON-friendly object for the admin UI.
             data = [dict(zip(columns, acronym)) for acronym in all_acronyms]
             return sorted(data, key=lambda x: x['acronym'])
     except Exception as e:
@@ -91,7 +104,9 @@ async def get_all_acroyms():
 
 @app.get("/admin/suggestions")
 async def get_suggestions():
-    review_list = os.getenv("REVIEW_LIST")
+    review_list = _review_list_path
+    # Suggestions are stored as a flat JSON file so they can be reviewed separately
+    # from trusted acronym records in the database.
     if not os.path.exists(review_list):
         return []
     try:
@@ -105,7 +120,7 @@ async def get_suggestions():
 @app.delete("/admin/suggestions/{index}")
 async def delete_suggestion(index: int):
     import json
-    review_list = os.getenv("REVIEW_LIST")
+    review_list = _review_list_path
     if not os.path.exists(review_list):
         return {"message": "No suggestions to delete"}
     try:
@@ -113,6 +128,7 @@ async def delete_suggestion(index: int):
             data = json.load(file)
         if index < 0 or index >= len(data):
             raise HTTPException(status_code=404, detail="Suggestion not found")
+        # The admin UI addresses suggestions by their current array position.
         data.pop(index)
         with open(review_list, "w") as file:
             json.dump(data, file, indent=4)

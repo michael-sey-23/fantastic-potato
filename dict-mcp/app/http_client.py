@@ -22,7 +22,6 @@ class AuthenticatedClient:
         self.username = username
         self.password = password
         self.token: Optional[str] = None
-        self.client = httpx.AsyncClient()
 
     async def login(self) -> None:
         """
@@ -31,7 +30,7 @@ class AuthenticatedClient:
         Raises:
             Exception: If login fails
         """
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             try:
                 response = await client.post(
                     f"{self.base_url}/api/auth/login",
@@ -39,6 +38,7 @@ class AuthenticatedClient:
                 )
                 response.raise_for_status()
                 data = response.json()
+                # Subsequent requests reuse this bearer token in the Authorization header.
                 self.token = data["token"]
                 logger.info(f"Successfully logged in as {self.username}")
             except httpx.HTTPError as e:
@@ -59,9 +59,10 @@ class AuthenticatedClient:
         Raises:
             Exception: If the request fails
         """
+        logger.info(f"GET called: {self.base_url}/{endpoint} | params: {kwargs} | token: {self.token}")
         try:
             headers = {"Authorization": f"Bearer {self.token}"}
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get(
                     f"{self.base_url}/{endpoint}",
                     headers=headers,
@@ -91,7 +92,8 @@ class AuthenticatedClient:
         """
         try:
             headers = {"Authorization": f"Bearer {self.token}"}
-            async with httpx.AsyncClient() as client:
+            # A fresh short-lived client keeps each request independent and simple.
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.base_url}/{endpoint}",
                     json=json_data,
@@ -120,7 +122,7 @@ class AuthenticatedClient:
         """
         try:
             headers = {"Authorization": f"Bearer {self.token}"}
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.delete(
                     f"{self.base_url}/{endpoint}",
                     headers=headers,

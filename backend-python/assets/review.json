@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "acronym": "BRD",
+    "is_new_entry": false
+  },
+  {
+    "acronym": "ICTRR",
+    "is_new_entry": true
+  },
+  {
+    "acronym": "ABC",
+    "is_new_entry": true
+  }
+]
