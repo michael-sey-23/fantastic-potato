@@ -1,59 +1,28 @@
-# DictFrontend
+# 📖 AI-Powered Company Acronym Dictionary
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+---
+## Component Deep-Dive
 
-## Development server
+### Angular Frontend (`dict-frontend`)
 
-To start a local development server, run:
+**Technology:** Angular 21, TypeScript, standalone components, Angular Signals.
 
-```bash
-ng serve
-```
+**Key files:**
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| File                          | Purpose                                                                                                                       |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `src/app/app.routes.ts`       | Defines all routes; `isLoggedInGuard` protects authenticated routes, `authGuard` protects admin routes                        |
+| `src/app/auth.service.ts`     | Manages JWT tokens in `localStorage`; exposes reactive `isLoggedIn`, `isAdmin`, and `isTokenExpired` computed signals         |
+| `src/app/auth-interceptor.ts` | HTTP interceptor that attaches the `Bearer` token to every outgoing request and handles 401 responses by logging the user out |
+| `src/app/chat-service.ts`     | Maintains the in-memory chat history (as a signal); sends queries to the Java API and appends responses to the history        |
+| `src/app/search/`             | The main chat UI component                                                                                                    |
+| `src/app/history/`            | Search history master/detail view                                                                                             |
+| `src/app/admin/`              | Admin dashboard with add/edit/delete/review forms                                                                             |
+| `src/app/login/`              | Login and registration form                                                                                                   |
+| `src/app/app.env.ts`          | Central place for `API_URL` and `BASE_URL` constants — **change these if you deploy to a non-localhost host**                 |
 
-## Code scaffolding
+**Build & deployment:** The `Dockerfile` uses a two-stage build — Node.js compiles the Angular app into static files,
+which Nginx then serves. The `default.conf` Nginx config includes `try_files $uri /index.html` so Angular's client-side
+routing works correctly on page refresh.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
