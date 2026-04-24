@@ -1,0 +1,303 @@
+{
+  "info": {
+    "_postman_id": "533350cf-d922-4c5e-bc0f-d452c99042a5",
+    "name": "Dictionary API",
+    "description": "Postman collection for the Dictionary API backend. Includes authentication and all acronym endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52623924",
+    "_collection_link": "https://go.postman.co/collection/52623924-533350cf-d922-4c5e-bc0f-d452c99042a5?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Token saved:', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login and retrieve a JWT token. The token is automatically saved to the collection variable for use in subsequent requests."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Acronyms",
+      "item": [
+        {
+          "name": "Search Acronym",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/search?query=IBC",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "IBC",
+                  "description": "The acronym or phrase to search for"
+                }
+              ]
+            },
+            "description": "Search for an acronym definition. Routes through the Python AI service. Results are saved to search history."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Search History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "history"
+              ]
+            },
+            "description": "Get the search history for the currently authenticated user, ordered by most recent."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Acronyms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/all-acronyms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "all-acronyms"
+              ]
+            },
+            "description": "Retrieve all acronyms stored in the dictionary."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Acronym (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"acronym\": \"API\",\n  \"definition\": \"Application Programming Interface\",\n  \"description\": \"A set of rules that allows programs to talk to each other\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/add",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "add"
+              ]
+            },
+            "description": "Add a new acronym to the dictionary. Requires ROLE_ADMIN. Stores in both SQLite and ChromaDB via the Python AI service."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Acronym (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"acronym\": \"API\",\n  \"definition\": \"Application Programming Interface\",\n  \"description\": \"Updated description here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/update",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "update"
+              ]
+            },
+            "description": "Update an existing acronym. Requires ROLE_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Acronym (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/delete/BRD",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "delete",
+                "BRD"
+              ]
+            },
+            "description": "Delete an acronym by its name. Requires ROLE_ADMIN. Replace 'API' in the URL with the acronym you want to delete."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Suggestions (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/suggestions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "suggestions"
+              ]
+            },
+            "description": "Get suggested acronyms. Requires ROLE_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Suggestion (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/acronyms/suggestions/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "acronyms",
+                "suggestions",
+                "0"
+              ]
+            },
+            "description": "Delete a suggestion by its index. Requires ROLE_ADMIN. Replace '0' with the index of the suggestion to delete."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
