@@ -71,8 +71,8 @@ def json_to_db(file=acronym_json_path):
             cursor.execute(
                 insert_query,
                 (
-                    item['metadata']['acronym'],
-                    item['metadata']['definition'],
+                    item['acronym'],
+                    item['definition'],
                     item['description']
                 )
             )
