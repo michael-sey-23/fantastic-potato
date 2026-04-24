@@ -2,7 +2,7 @@ import {Component, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {FormsModule, NgForm} from '@angular/forms';
-import {Acronym} from '../models';
+import {Acronym, Suggestion} from '../models';
 import {Observable} from 'rxjs';
 import {shareReplay} from 'rxjs/operators';
 import {API_URL} from '../app.env';
@@ -18,15 +18,17 @@ export class Admin implements OnInit {
   private http = inject(HttpClient);
   private apiUrl = `${API_URL}acronyms`;
 
-  public suggestions: any[] = [];
   public selectedSuggestionIndex: number | null = null;
+  public currentSuggestionIsNew: boolean | null = null;
   public formData = { acronym: '', definition: '', description: '' };
   public acronyms$!: Observable<any[]>;
+  public suggestions$!: Observable<any[]>;
   public selectedAcronym: any | null = null;
 
   public isSubmitting = signal(false);
   public successMessage = signal<string | null>(null);
   public acronyms = signal<Acronym[]>([]);
+  public suggestions = signal<Suggestion[]>([]);
   public visiblePopup = signal(false);
 
   ngOnInit() {
@@ -37,6 +39,11 @@ export class Admin implements OnInit {
       next: (res) => this.acronyms.set(res || []),
       error: (err) => console.error("Could not fetch acronyms", err)
     });
+
+    this.suggestions$.subscribe(({
+      next: (res) => this.suggestions.set(res || []),
+      error: (err) => console.error("Could not fetch suggestions", err)
+    }))
   }
 
   fetchAcronyms(): void {
@@ -55,14 +62,15 @@ export class Admin implements OnInit {
   }
 
   fetchSuggestions(): void {
-    this.http.get<any[]>(`${this.apiUrl}/suggestions`).subscribe({
-      next: (res) => this.suggestions = res || [],
-      error: (err) => console.error("Could not fetch suggestions", err)
-    });
+    // using shareReplay, same as acronyms
+    this.suggestions$ = this.http.get<any[]>(`${this.apiUrl}/suggestions`).pipe(
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   }
 
   onReviewSuggestion(index: number, suggestion: any): void {
     this.selectedSuggestionIndex = index;
+    this.currentSuggestionIsNew = !!suggestion.is_new_entry;
     this.formData.acronym = suggestion.acronym;
     this.formData.definition = '';
     this.formData.description = '';
@@ -81,15 +89,24 @@ export class Admin implements OnInit {
       this.isSubmitting.set(true);
       this.successMessage.set(null);
 
-      this.http.post(`${this.apiUrl}/add`, data).subscribe({
+      const isApprovingSuggestion = this.selectedSuggestionIndex !== null;
+      const isNew = this.currentSuggestionIsNew === null ? true : this.currentSuggestionIsNew;
+
+      const request$ = (isApprovingSuggestion && !isNew)
+        ? this.http.put(`${this.apiUrl}/update`, data)
+        : this.http.post(`${this.apiUrl}/add`, data);
+
+      request$.subscribe({
         next: () => {
-          this.successMessage.set(`Successfully added ${data.acronym}`);
+          const action = (isApprovingSuggestion && !isNew) ? 'updated' : 'added';
+          this.successMessage.set(`Successfully ${action} ${data.acronym}`);
           form.reset();
 
           if (this.selectedSuggestionIndex !== null) {
-            // Once a suggestion becomes a real entry, remove it from the review queue.
+            // Once a suggestion is handled, remove it from the review queue.
             this.onRejectSuggestion(this.selectedSuggestionIndex);
             this.selectedSuggestionIndex = null;
+            this.currentSuggestionIsNew = null;
           }
 
           this.isSubmitting.set(false);

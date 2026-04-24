@@ -48,9 +48,9 @@
       </div>
       <p class="stats-card-desc">Review and approve new acronyms suggested by users during chat.</p>
 
-      @if (suggestions.length > 0) {
+      @if (suggestions().length > 0) {
         <div class="suggestions-list">
-          @for (suggestion of suggestions; track $index) {
+          @for (suggestion of suggestions(); track $index) {
             <div class="suggestion-item">
               <div class="suggestion-info">
                 <strong>{{ suggestion.acronym }}</strong>
@@ -97,7 +97,8 @@
         <form #editForm="ngForm" (submit)="onEditAcronym(editForm)">
           <div class="form-group">
             <label>Acronym</label>
-            <input name="acronym" [(ngModel)]="selectedAcronym.acronym">
+            <!-- Readonly to prevent accidental renames; definition and description are editable -->
+            <input name="acronym" [(ngModel)]="selectedAcronym.acronym" readonly>
           </div>
           <div class="form-group">
             <label>Definition</label>
