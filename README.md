@@ -192,7 +192,7 @@ Before you begin, make sure the following are installed on your machine:
 ## 5. Environment Setup
 
 Each service needs a `.env` file with its secrets. These files are intentionally excluded from version control (see
-`.gitignore`). You must create them manually.
+`.gitignore`). You must create them manually (Details on how to do this are in the READMEs for each component). 
 
 ---
 
