@@ -5,11 +5,16 @@ from dotenv import load_dotenv
 from langchain_core.tools import tool
 from rapidfuzz import process
 
-from src.utils import get_vector_store, create_connection
+from .utils import get_vector_store, create_connection
 
 load_dotenv()
 
-review_list = os.getenv("REVIEW_LIST")
+# Resolve paths relative to the project root (backend-python/),
+# regardless of which directory this module is imported from.
+_src_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(_src_dir)
+
+review_list = os.path.join(_project_root, os.getenv("REVIEW_LIST", "assets/review.json"))
 
 
 @tool
@@ -17,27 +22,20 @@ def retrieve_from_vector_store(user_input: str):
     """
     This tool is responsible for retrieving data from the vector database.
     """
-
     vectorstore = get_vector_store()
-    answer = vectorstore.similarity_search_with_score(user_input, k=1)
+    results = vectorstore.similarity_search_with_score(user_input, k=1)
 
-    if not answer:
-        return "No results found."
+    if not results:
+        return None
 
-    doc, score = answer[0]
+    doc, score = results[0]
 
-    if score > 0.9:
-        answer = vectorstore.similarity_search_with_score(user_input, k=3)
-        if not answer:
-            return "No results found."
-        return [doc.page_content for doc, score in answer]
-
-    # result when a description is input to find a term
-    res = {
+    # Return the best match regardless of score. The SQL DB will act as fallback
+    # if this isn't good enough.
+    return {
         "source": "similarity_search",
-        "content": f"{doc.metadata.get('acronym')} - {doc.metadata.get('definition')}"
+        "content": doc.page_content
     }
-    return res
 
 
 @tool
@@ -48,7 +46,8 @@ def retrieve_from_sql_db(user_input: str):
     with create_connection() as connection:
         cursor = connection.cursor()
 
-        # try to find an exact match first
+        # Exact acronym lookups are the safest result, so we always try that before
+        # moving to fuzzy matching.
         cursor.execute("""
                        SELECT definition, description
                        FROM acronyms
@@ -59,12 +58,13 @@ def retrieve_from_sql_db(user_input: str):
         if answer:
             res = {
                 "source": "exact_match",
-                "content": f"{user_input} : {answer[0]}"
+                "content": f"{user_input}: {answer[0]}. {answer[1]}"
             }
             return res
 
-        # fuzzy match fallback
-        cursor.execute("""SELECT acronym FROM acronyms""")
+        # If there is no exact hit, compare the query against the known acronym list.
+        cursor.execute("""SELECT acronym
+                          FROM acronyms""")
         acronyms = [row[0] for row in cursor.fetchall()]
         match = process.extractOne(user_input, acronyms)
 
@@ -85,25 +85,29 @@ def retrieve_from_sql_db(user_input: str):
         # result from fuzzy search in SQLite db
         res = {
             "source": "fuzzy_match",
-            "content": f"{matched_acronym} : {answer[0]}"
+            "content": f"{matched_acronym}: {answer[0]}. {answer[1]}"
         }
         return res
 
 
 @tool
-def user_suggestion(acronym: str, new_acronym: bool):
+def user_suggestion(acronym: str, definition: str, description: str, is_new_entry: bool):
     """
-    Suggest an addition or update to the database
-    The user's entry is put into a file to be reviewed by an admin to confirm the entry.
-    Use this tool when a user suggests a new entry or an updated entry.
-    If a user has a new entry to add or update, you should ask them to input the acronym, so that it is clear what data to use.
-    new_acronym should be set to True if it is a new acronym
-    new_acronym should be set to False if it is an update
+    Suggest an addition or update to the database.
+    The stored suggestion format is intentionally minimal: only the acronym and a boolean
+    flag 'is_new_entry' are persisted. Definition/description are gathered by admins during review.
+
+    Args:
+        acronym: The acronym being suggested
+        definition: (ignored) kept for compatibility with tool interface
+        description: (ignored) kept for compatibility with tool interface
+        is_new_entry: True for new acronyms, False for updates
     """
     if not os.path.exists(review_list):
         with open(review_list, 'w') as file:
             json.dump([], file)
 
+    # Suggestions stay outside the main database until an admin reviews them.
     with open(review_list, 'r') as file:
         try:
             data = json.load(file)
@@ -112,17 +116,15 @@ def user_suggestion(acronym: str, new_acronym: bool):
 
     data.append(
         {
-            "acronym" : acronym,
-            "metadata": {
-                "new_acronym" : new_acronym
-            }
+            "acronym": acronym,
+            "is_new_entry": is_new_entry
         }
     )
 
     with open(review_list, "w") as file:
         json.dump(data, file, indent=4)
 
-    return "Your entry has been submitted to be reviewed by an admin"
+    return "Your entry has been submitted for review by an admin."
 
 
 tools = [retrieve_from_sql_db, retrieve_from_vector_store, user_suggestion]

@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import {API_URL} from '../app.env';
 
 @Component({
   selector: 'app-history',
@@ -11,21 +12,21 @@ import { CommonModule } from '@angular/common';
 })
 export class History implements OnInit {
   private http = inject(HttpClient);
-  
+
   // Data Signals
   public records = signal<any[]>([]);
   public searchQuery = signal<string>('');
   public selectedRecord = signal<any | null>(null);
 
-  // Filtered list based on search
+  // Filtering is derived state, so it updates automatically as records or query change.
   public filteredRecords = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const allRecords = this.records();
-    
+
     if (!query) return allRecords;
-    
-    return allRecords.filter(r => 
-      r.query.toLowerCase().includes(query) || 
+
+    return allRecords.filter(r =>
+      r.query.toLowerCase().includes(query) ||
       r.response.toLowerCase().includes(query)
     );
   });
@@ -44,9 +45,9 @@ export class History implements OnInit {
   }
 
   refreshHistory(): void {
-    this.http.get<any[]>('http://localhost:8080/api/acronyms/history').subscribe({
+    this.http.get<any[]>(`${API_URL}acronyms/history`).subscribe({
       next: (data) => {
-        // Optional: Pre-process data if needed
+        // The backend already sorts history newest-first for the current user.
         this.records.set(data);
       },
       error: (err) => {

@@ -26,6 +26,11 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
+  /* Additional variables referenced by component styles. */
+  --bg-panel: var(--bg-bubble); /* fallback for panel surfaces */
+  --bg-elevated: #ffffff;      /* elevated surfaces (cards, inputs) */
+  --shadow-glow: 0 12px 40px -12px rgba(59,130,246,0.15);
+
   --font-sans: 'Inter', sans-serif;
   --font-display: fallback;
 }
@@ -37,7 +42,7 @@
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), system-ui;
   background-color: var(--bg-base);
   color: var(--text-main);
   line-height: 1.5;
@@ -79,12 +84,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-elevated);
+  background: grey;
   border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-glow);
+  background: darkslategrey;
 }
 
 a {

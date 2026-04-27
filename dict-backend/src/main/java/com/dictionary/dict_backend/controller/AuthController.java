@@ -41,7 +41,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(username, password));
         // 2. Load the user's details
         final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        // 3. Extract the first authority (e.g. ROLE_USER or ROLE_ADMIN)
+        // 3. Extract the first authority (e.g. USER or ADMIN)
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
         // 4. Generate a JWT token with that role included!
@@ -61,7 +61,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "Username already taken!"));
         }
 
-        // 2. Create the new User (Default to ROLE_USER)
+        // 2. New registrations are regular users; admin accounts are bootstrapped separately.
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setPassword(passwordEncoder.encode(password));

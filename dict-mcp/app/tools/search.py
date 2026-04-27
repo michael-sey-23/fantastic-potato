@@ -2,7 +2,6 @@ from ..http_client import AuthenticatedClient
 from ..models import Query
 
 
-
 async def search(http_client: AuthenticatedClient, query: Query) -> dict:
     """
     Search for an acronym definition.
@@ -19,10 +18,17 @@ async def search(http_client: AuthenticatedClient, query: Query) -> dict:
         - "error": Error message if the acronym was not found or request failed
     """
     try:
-        response = await http_client.get("api/acronyms/search", query=query.query)
+        response = await http_client.get(
+            "api/acronyms/search",
+            query=query.query
+        )
+
         if response and len(response) > 0:
-            return {"definition": response[0]["definition"]}
+            # The Java API returns a list payload, so MCP unwraps the first match.
+            definition = response[0]["definition"]
+            return f"{query.query} = {definition}"
         else:
-            return {"error": f"No definition found for '{query.query}'"}
+            return f"No definition found for '{query.query}'"
+
     except Exception as e:
-        return {"error": f"Failed to look up '{query.query}': {str(e)}"}
+        return f"Failed to look up '{query.query}': {str(e)}"

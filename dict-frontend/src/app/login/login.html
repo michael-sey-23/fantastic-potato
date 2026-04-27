@@ -14,10 +14,10 @@
 
       <div class="form-group">
         <label for="username">Username</label>
-        <input 
-          type="text" 
-          id="username" 
-          placeholder="Enter your username" 
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter your username"
           #usernameInput
           (keydown.enter)="onSignIn()"
         >
@@ -25,10 +25,10 @@
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          placeholder="Enter your password" 
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
           #passwordInput
           (keydown.enter)="onSignIn()"
         >
@@ -37,24 +37,39 @@
       @if (isSignUpMode()) {
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
-          <input 
-            type="password" 
-            id="confirmPassword" 
-            placeholder="Confirm your password" 
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm your password"
             #confirmPasswordInput
             (keydown.enter)="onSignIn()"
           >
         </div>
       }
 
-      <button 
-        type="button" 
-        class="login-btn" 
+      <button
+        type="button"
+        class="login-btn"
         (click)="onSignIn()"
       >
         {{ isSignUpMode() ? 'Register' : 'Sign In' }}
       </button>
-      
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <div class="social-login">
+        <a href="http://localhost:8080/oauth2/authorization/google" class="social-btn google-btn">
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+          Continue with Google
+        </a>
+        <a href="http://localhost:8080/oauth2/authorization/github" class="social-btn github-btn">
+          <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo">
+          Continue with GitHub
+        </a>
+      </div>
+
       <div class="login-footer">
         <p>
           {{ isSignUpMode() ? 'Already have an account?' : "Don't have an account?" }}

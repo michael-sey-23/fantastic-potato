@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/acronyms")
+@RequestMapping("/api/")
 public class AcronymController {
 
     private final ChatService chatService;
@@ -23,15 +23,17 @@ public class AcronymController {
         this.historyRepository = historyRepository;
     }
 
-    @GetMapping("/search")
+    @GetMapping("acronyms/search")
     public List<Map<String, String>> search(@RequestParam String query) {
         try {
+            // Spring delegates the actual acronym lookup to the Python AI service.
             Map<String, Object> result = chatService.getAcronymResponse(query).block();
             String responseFromPython = (result != null && result.containsKey("response"))
                     ? result.get("response").toString()
                     : "No response from AI.";
 
-            // Save to Search History
+            // Search history is stored per authenticated user so the history page can
+            // show previous lookups after login.
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             historyRepository.save(new SearchHistory(query, responseFromPython, username));
 
@@ -41,14 +43,15 @@ public class AcronymController {
         }
     }
 
-    @GetMapping("/history")
+    @GetMapping("acronyms/history")
     public List<SearchHistory> getHistory() {
+        // Users only see their own history records, not global search traffic.
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return historyRepository.findByUsernameOrderBySearchTimeDesc(username);
     }
 
-    @PostMapping("/add")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("acronyms/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> addAcronym(@RequestBody Map<String, String> data) {
         try {
             Map<String, Object> result = chatService.addAcronym(data).block();
@@ -58,19 +61,22 @@ public class AcronymController {
         }
     }
 
-    @GetMapping("/suggestions")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Map<String, String>>> getSuggestions() {
+    @GetMapping("acronyms/suggestions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Map<String, Object>>> getSuggestions() {
         try {
-            List<Map<String, String>> result = chatService.getSuggestions().block();
+            List<Map<String, Object>> result = chatService.getSuggestions().block();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            // Log detail to aid debugging when the Python AI service is unreachable or errors.
+            e.printStackTrace();
+            // Return a clear, non-200 status with a simple error payload the frontend can inspect.
+            return ResponseEntity.status(503).body(List.of(Map.of("error", "AI service unavailable")));
         }
     }
 
-    @DeleteMapping("/suggestions/{index}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("acronyms/suggestions/{index}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteSuggestion(@PathVariable int index) {
         try {
             Map<String, Object> result = chatService.deleteSuggestion(index).block();
@@ -80,18 +86,19 @@ public class AcronymController {
         }
     }
 
-    @GetMapping("/all-acronyms")
-    public ResponseEntity<List<Map<String, String>>> getAcronyms() {
+    @GetMapping("acronyms/all-acronyms")
+    public ResponseEntity<List<Map<String, Object>>> getAcronyms() {
         try {
-            List<Map<String, String>> result = chatService.getAllAcronyms().block();
+            List<Map<String, Object>> result = chatService.getAllAcronyms().block();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            e.printStackTrace();
+            return ResponseEntity.status(503).body(List.of(Map.of("error", "AI service unavailable")));
         }
     }
 
-    @PutMapping("/update")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("acronyms/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateAcronym(@RequestBody Map<String, String> data) {
         try {
             Map<String, Object> result = chatService.updateAcronym(data).block();
@@ -101,8 +108,8 @@ public class AcronymController {
         }
     }
 
-    @DeleteMapping("/delete/{acronym}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("acronyms/delete/{acronym}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteAcronym(@PathVariable String acronym) {
         try {
             Map<String, Object> result = chatService.deleteAcronym(acronym).block();

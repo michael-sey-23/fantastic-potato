@@ -12,3 +12,8 @@ export interface Acronym {
   definition: string
   description?: string
 }
+
+export interface Suggestion {
+  acronym: string
+  is_new_entry: boolean
+}

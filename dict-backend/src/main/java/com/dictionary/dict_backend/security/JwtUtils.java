@@ -2,6 +2,7 @@ package com.dictionary.dict_backend.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,9 +11,14 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    @Value("$JWT_SECRET")
+    @Value("${JWT_SECRET}")
     private String SECRET_STRING;
-    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
+    private SecretKey SECRET_KEY;
+
+    @PostConstruct
+    private void init() {
+        this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
+    }
 
     public String generateToken(String username, String role) {
         return Jwts.builder()

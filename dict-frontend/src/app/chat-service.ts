@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ChatMessage } from './models';
+import {API_URL} from './app.env';
 
 @Injectable({
   providedIn: 'root',
@@ -9,8 +10,10 @@ import { ChatMessage } from './models';
 export class ChatService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  
+
   public readonly chatHistory = signal<ChatMessage[]>([]);
+  public readonly isThinking = signal<boolean>(false);
+
   private messageIdCounter = 0;
 
   public sendQuestionToBot(question: string): void {
@@ -25,10 +28,13 @@ export class ChatService {
       text: question,
       timestamp: timestamp
     };
-    
-    this.chatHistory.update(history => [...history, userMessage]);
 
-    this.http.get<any>(`http://localhost:8080/api/acronyms/search?query=${question}`).subscribe({
+    this.chatHistory.update(history => [...history, userMessage]);
+    this.isThinking.set(true);
+
+
+    // The Angular app talks to the Java API, which then delegates AI lookup to the Python service.
+    this.http.get<any>(`${API_URL}acronyms/search?query=${question}`).subscribe({
       next: (data) => {
         const botMessage: ChatMessage = {
           id: this.messageIdCounter++,
@@ -38,24 +44,29 @@ export class ChatService {
           category: data[0]?.category,
           url: data[0]?.url
         };
-        
+
         this.chatHistory.update(history => [...history, botMessage]);
+        this.isThinking.set(false);
       },
+
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
+          // Authentication problems are handled centrally by returning the user to login.
           localStorage.removeItem('auth_token');
           this.router.navigate(['/login']);
         } else {
-          const errorMsg: ChatMessage = { 
-            id: this.messageIdCounter++, 
-            sender: 'bot', 
-            text: 'Error: Could not reach the server.', 
+          const errorMsg: ChatMessage = {
+            id: this.messageIdCounter++,
+            sender: 'bot',
+            text: 'Error: Could not reach the server.',
             timestamp: timestamp,
-            category: 'error' 
+            category: 'error'
           };
           this.chatHistory.update(history => [...history, errorMsg]);
         }
+        this.isThinking.set(false);
       }
+
     });
   }
 }

@@ -12,6 +12,10 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    private String email;
+
+    private String provider;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -33,6 +37,14 @@ public class User {
         this.password = password;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
     public Long getId() {
         return id;
     }
@@ -48,6 +60,15 @@ public class User {
     public String getPassword() {
         return password;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
     public User() {}
     public User(Long id, String username, Role role, String password) {
         setId(id);

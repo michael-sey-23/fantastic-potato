@@ -1,6 +1,7 @@
 import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { API_URL} from './app.env';
 
 @Injectable({
   providedIn: 'root',
@@ -8,11 +9,20 @@ import { Router } from '@angular/router';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly baseUrl = 'http://localhost:8080/api/auth';
+  private readonly baseUrl = `${API_URL}auth`;
 
-  // Initialize signals based on storage
-  public readonly isLoggedIn = signal(!!localStorage.getItem('auth_token'));
-  
+  private tokenSignal = signal<string | null>(localStorage.getItem('auth_token'));
+
+  public readonly isLoggedIn = computed(() => !!this.tokenSignal());
+
+  public readonly isTokenExpired = computed(() => {
+    const token = this.tokenSignal();
+    if (!token) return true;
+    const decoded = this.decodeToken(token);
+    if (!decoded || !decoded.exp) return true;
+    return decoded.exp < Date.now() / 1000;
+  });
+
   public readonly isAdmin = computed(() => {
     return this.isLoggedIn() && this.getRole() === 'ROLE_ADMIN';
   });
@@ -24,9 +34,8 @@ export class AuthService {
 
     return this.http.post<{ token: string }>(`${this.baseUrl}/login`, body).subscribe({
       next: (response) => {
-        const token = response.token;
-        localStorage.setItem('auth_token', token);
-        this.isLoggedIn.set(true);
+        this.handleLoginSuccess(response.token);
+        // Successful login always lands on the main search experience.
         this.router.navigate(['/search']);
       },
       error: (err) => {
@@ -37,7 +46,7 @@ export class AuthService {
 
   public logout(): void {
     localStorage.removeItem('auth_token');
-    this.isLoggedIn.set(false);
+    this.tokenSignal.set(null);
     this.router.navigate(['/login']);
   }
 
@@ -47,6 +56,7 @@ export class AuthService {
 
   private decodeToken(token: string): any {
     try {
+      // JWT payloads use URL-safe base64, so they need to be normalized before decoding.
       const payloadBase64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
       const decodedJson = atob(payloadBase64);
       return JSON.parse(decodedJson);
@@ -57,9 +67,24 @@ export class AuthService {
   }
 
   public getRole(): string | null {
-    const token = localStorage.getItem('auth_token');
+    const token = this.tokenSignal();
     if (!token) return null;
     const decoded = this.decodeToken(token);
+    // Role is embedded in the JWT by the Spring backend during login.
     return decoded?.role || null;
   }
+
+  public checkAuth(): boolean {
+    if (this.isTokenExpired()) {
+      this.logout();
+      return false;
+    }
+    return true;
+  }
+
+  public handleLoginSuccess(token: string) {
+    localStorage.setItem('auth_token', token);
+    this.tokenSignal.set(token);
+  }
+
 }

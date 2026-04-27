@@ -13,7 +13,17 @@ export class App {
   protected authService = inject(AuthService);
   private router = inject(Router);
   
+  constructor() {
+    // Periodically check if the token has expired while the user is idle.
+    setInterval(() => {
+      if (this.authService.isLoggedIn()) {
+        this.authService.checkAuth();
+      }
+    }, 60000); // Check every minute
+  }
+
   protected get showNav(): boolean {
+    // The login page is intentionally distraction-free, so the global nav is hidden there.
     return this.router.url !== '/login';
   }
 }

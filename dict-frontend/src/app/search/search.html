@@ -18,7 +18,8 @@
     }
 
     @for (msg of acronymService.chatHistory(); track msg.id) {
-      <div class="message-wrapper" [class.user-wrapper]="msg.sender === 'user'" [class.bot-wrapper]="msg.sender === 'bot'">
+      <div class="message-wrapper" [class.user-wrapper]="msg.sender === 'user'"
+           [class.bot-wrapper]="msg.sender === 'bot'">
         <div class="bubble-container">
           <div class="bubble" [class.user-bubble]="msg.sender === 'user'" [class.bot-bubble]="msg.sender === 'bot'">
             {{ msg.text }}
@@ -27,15 +28,28 @@
         </div>
       </div>
     }
+    @if (acronymService.isThinking()) {
+      <div class="message-wrapper bot-wrapper">
+        <div class="bubble-container">
+          <div class="bubble bot-bubble thinking-bubble">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Bottom Input Bar -->
   <div class="input-container">
     <div class="input-tray">
-      <input 
-        type="text" 
-        placeholder="Type your message..." 
-        #searchInput 
+      <input
+        type="text"
+        placeholder="Type your message..."
+        #searchInput
         (keydown.enter)="performSearch(searchInput.value); searchInput.value = ''"
       >
       <button class="action-btn send-circle" (click)="performSearch(searchInput.value); searchInput.value = ''">
@@ -43,4 +57,21 @@
       </button>
     </div>
   </div>
+
+  <!-- All Acronyms Section -->
+  <div class="collapsible-wrapper">
+    <input type="checkbox" id="toggle-section" class="toggle-input">
+    <label for="toggle-section" class="toggle-label">Click to Expand</label>
+
+    <section class="suggestions-list scrollable-list collapsible-content">
+      @for (acronym of acronyms(); track acronym.acronym) {
+        <div class="acronym-item" (click)="onClickAcronymCard(acronym)">
+          <div class="acronym-info">
+            <strong>{{ acronym.acronym }} - {{ acronym.definition }}</strong>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+
 </div>
