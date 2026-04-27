@@ -25,7 +25,7 @@ JWT_SECRET=replace_with_a_long_random_secret_string_here
 # URL of the Python AI service (use the Docker service name)
 PYTHON_SERVICE_URL=http://python-ai:8000
 
-# Optional — OAuth2 social login (leave blank to disable)
+# Optional — OAuth2 social login (Remove to disable)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
